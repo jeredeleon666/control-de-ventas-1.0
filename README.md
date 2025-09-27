@@ -1,3 +1,4 @@
+Si clonar no funciona por favor descarga un zip y a evaluar...
 ## 📋 Tabla de Contenidos
 
 <img width="1655" height="865" alt="Captura de pantalla 2025-09-26 a la(s) 22 57 06" src="https://github.com/user-attachments/assets/75a2c350-7e39-42e6-9c7d-5ce21d33eb82" />
