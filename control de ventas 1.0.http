@@ -1,0 +1,140 @@
+# =============================================================================
+# SISTEMA DE CONTROL DE VENTAS - CONFIGURACIÓN DE REQUESTS HTTP
+# =============================================================================
+
+@control_de_ventas_1._0_HostAddress = http://localhost:5281
+
+# =============================================================================
+# PÁGINAS WEB (HTML)
+# =============================================================================
+
+### Página Principal del Sistema
+GET {{control_de_ventas_1._0_HostAddress}}/controlventas/
+Accept: text/html
+
+### Página de Consultas
+GET {{control_de_ventas_1._0_HostAddress}}/controlventas/consultas
+Accept: text/html
+
+### Página de Configuración
+GET {{control_de_ventas_1._0_HostAddress}}/controlventas/configuracion
+Accept: text/html
+
+### Página de Ayuda
+GET {{control_de_ventas_1._0_HostAddress}}/controlventas/ayuda
+Accept: text/html
+
+### Redirección desde Raíz
+GET {{control_de_ventas_1._0_HostAddress}}/
+Accept: text/html
+
+# =============================================================================
+# API REST ENDPOINTS (JSON)
+# =============================================================================
+
+### Obtener Categorías con Ventas en 2024
+GET {{control_de_ventas_1._0_HostAddress}}/api/ventas/categorias-con-ventas/2024
+Accept: application/json
+
+### Obtener Categorías con Ventas en 2023
+GET {{control_de_ventas_1._0_HostAddress}}/api/ventas/categorias-con-ventas/2023
+Accept: application/json
+
+### Obtener Ventas por Categoría - Electrónicos 2024
+GET {{control_de_ventas_1._0_HostAddress}}/api/ventas/por-categoria?nombreCategoria=Electrónicos&año=2024
+Accept: application/json
+
+### Obtener Ventas por Categoría - Hogar 2024
+GET {{control_de_ventas_1._0_HostAddress}}/api/ventas/por-categoria?nombreCategoria=Hogar&año=2024
+Accept: application/json
+
+### Obtener Ventas por Categoría - Ropa 2024
+GET {{control_de_ventas_1._0_HostAddress}}/api/ventas/por-categoria?nombreCategoria=Ropa&año=2024
+Accept: application/json
+
+### Obtener Resumen por Categoría 2024
+GET {{control_de_ventas_1._0_HostAddress}}/api/ventas/resumen-por-categoria/2024
+Accept: application/json
+
+### Obtener Resumen por Categoría 2023
+GET {{control_de_ventas_1._0_HostAddress}}/api/ventas/resumen-por-categoria/2023
+Accept: application/json
+
+# =============================================================================
+# DOCUMENTACIÓN Y DESARROLLO
+# =============================================================================
+
+### Swagger UI - Documentación de API
+GET {{control_de_ventas_1._0_HostAddress}}/swagger/
+Accept: text/html
+
+### Swagger JSON - Definición de API
+GET {{control_de_ventas_1._0_HostAddress}}/swagger/v1/swagger.json
+Accept: application/json
+
+# =============================================================================
+# TESTS DE ERROR Y VALIDACIÓN
+# =============================================================================
+
+### Test: Año inválido (muy alto)
+GET {{control_de_ventas_1._0_HostAddress}}/api/ventas/categorias-con-ventas/3001
+Accept: application/json
+
+### Test: Año inválido (muy bajo)
+GET {{control_de_ventas_1._0_HostAddress}}/api/ventas/categorias-con-ventas/1800
+Accept: application/json
+
+### Test: Categoría inexistente
+GET {{control_de_ventas_1._0_HostAddress}}/api/ventas/por-categoria?nombreCategoria=CategoriaInexistente&año=2024
+Accept: application/json
+
+### Test: Parámetros faltantes
+GET {{control_de_ventas_1._0_HostAddress}}/api/ventas/por-categoria?año=2024
+Accept: application/json
+
+### Test: Categoría con caracteres especiales
+GET {{control_de_ventas_1._0_HostAddress}}/api/ventas/por-categoria?nombreCategoria=Categoría%20con%20Espacios&año=2024
+Accept: application/json
+
+# =============================================================================
+# EJEMPLOS DE RESPUESTAS ESPERADAS
+# =============================================================================
+
+###
+# RESPUESTA ESPERADA para categorías con ventas:
+# {
+#   "success": true,
+#   "data": ["Electrónicos", "Hogar", "Ropa"],
+#   "total": 3,
+#   "año": 2024
+# }
+
+###
+# RESPUESTA ESPERADA para ventas por categoría:
+# {
+#   "success": true,
+#   "data": [
+#     {
+#       "codigoVenta": 1,
+#       "fecha": "2024-01-15T10:30:00",
+#       "codigoProducto": 5,
+#       "nombreProducto": "Laptop",
+#       "codigoCategoria": 1,
+#       "nombreCategoria": "Electrónicos"
+#     }
+#   ],
+#   "total": 1,
+#   "filtros": {
+#     "categoria": "Electrónicos",
+#     "año": 2024
+#   }
+# }
+
+###
+# RESPUESTA ESPERADA para error (sin datos):
+# {
+#   "success": false,
+#   "mensaje": "No se encontraron categorías con ventas en el año 2025",
+#   "año": 2025,
+#   "data": []
+# }

@@ -1,0 +1,487 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Control de Ventas</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos personalizados para mejorar la flexibilidad */
+        .flexible-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 0; /* Importante para que funcione flex-grow correctamente */
+        }
+
+        .results-area {
+            flex: 1; /* Ocupa todo el espacio disponible */
+            min-height: 300px; /* Altura mínima para que se vea bien */
+            max-height: 70vh; /* Límite máximo para pantallas grandes */
+        }
+
+       
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-100 to-gray-300 font-sans min-h-screen flex flex-col">
+    <!-- Navbar -->
+    <nav class="bg-gradient-to-r from-blue-900 to-blue-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/controlventas" class="text-xl font-bold flex items-center">
+                <i class="fas fa-chart-line mr-2"></i>Control de Ventas
+            </a>
+            <button class="md:hidden focus:outline-none" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="hidden md:flex space-x-6" id="navbarMenu">
+                <a href="/controlventas" class="hover:text-blue-200 flex items-center"><i class="fas fa-home mr-1"></i>Inicio</a>
+            </div>
+        </div>
+    </nav>
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-blue-900 to-blue-600 text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 flex justify-center items-center">
+                <i class="fas fa-chart-bar mr-3"></i>Sistema de Control de Ventas
+            </h1>
+            <p class="text-lg md:text-xl">Consulta y gestiona tus ventas por categorías</p>
+        </div>
+    </section>
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8 flex-grow">
+        <!-- Consultation Form -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-white rounded-xl shadow-lg p-6 flexible-container">
+                <h3 class="text-2xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-filter mr-2 text-blue-600"></i>Consultar Ventas
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="añoConsulta" class="block text-sm font-medium text-gray-700 mb-1">
+                            <i class="fas fa-calendar mr-1"></i>Año
+                        </label>
+                        <input type="number" id="añoConsulta" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500" min="2000" max="2099" value="2019" required>
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="obtenerCategorias()" class="w-full bg-gradient-to-r from-blue-500 to-green-500 text-white py-3 rounded-lg hover:bg-blue-600 transition">
+                            <i class="fas fa-search mr-1"></i>Obtener Categorías
+                        </button>
+                    </div>
+                </div>
+                <div id="categoriasContainer" class="mt-4 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="categoriaSelect" class="block text-sm font-medium text-gray-700 mb-1">
+                                <i class="fas fa-tag mr-1"></i>Categoría
+                            </label>
+                            <select id="categoriaSelect" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="">Seleccione una categoría...</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="consultarVentas()" class="w-full bg-gradient-to-r from-blue-500 to-green-500 text-white py-3 rounded-lg hover:bg-blue-600 transition">
+                                <i class="fas fa-chart-bar mr-1"></i>Consultar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Loading -->
+                <div id="loadingContainer" class="text-center py-6 hidden">
+                    <div class="animate-spin inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+                    <p class="mt-2 text-gray-600">Procesando...</p>
+                </div>
+                <!-- Results - Área modificada para ser flexible -->
+                <div id="resultadosContainer" class="mt-6 hidden bg-gray-50 rounded-lg p-6 results-area overflow-y-auto">
+                    <h4 id="resultadosTitulo" class="text-xl font-semibold mb-4"></h4>
+                    <div id="resultadosContent"></div>
+                </div>
+            </div>
+            <div class="space-y-6">
+                <!-- Categories -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h5 class="text-lg font-semibold mb-3 flex items-center">
+                        <i class="fas fa-info-circle mr-2 text-blue-500"></i>Categorías Disponibles
+                    </h5>
+                    <div id="categoriasTags" class="flex flex-wrap gap-2"></div>
+                    <p class="text-sm text-gray-500 mt-2">
+                        <i class="fas fa-lightbulb mr-1"></i>Selecciona una categoría para consultar
+                    </p>
+                </div>
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h5 class="text-lg font-semibold mb-3 flex items-center">
+                        <i class="fas fa-rocket mr-2 text-green-500"></i>Accesos Rápidos
+                    </h5>
+                    <div class="space-y-3">
+                        <button onclick="obtenerResumenAnual()" class="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition">
+                            <i class="fas fa-chart-pie mr-1"></i>Resumen Anual
+                        </button>
+                        <button onclick="limpiarResultados()" class="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition">
+                            <i class="fas fa-sync mr-1"></i>Limpiar Consulta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Footer -->
+    <footer class="bg-blue-900 text-white text-center py-6 mt-auto">
+        <div class="container mx-auto px-4">
+            <p>© Derechos reservados a favor de Jeremías de León – jeredeleon@yahoo.com</p>
+            <p class="text-sm text-gray-300">Sistema de Control de Ventas - Desarrollado con ASP.NET Core</p>
+        </div>
+    </footer>
+    <!-- Scripts -->
+    <script>
+        // Category to icon mapping
+        const categoryIcons = {
+            'Electrónicos': 'fas fa-mobile-alt',
+            'Ropa': 'fas fa-tshirt',
+            'Alimentos': 'fas fa-apple-alt',
+            'Hogar': 'fas fa-couch',
+            'Juguetes': 'fas fa-rocket',
+            'Libros': 'fas fa-book-open',
+            'Deportes': 'fas fa-basketball-ball',
+            'Cosméticos': 'fas fa-heart',
+            'Automotriz': 'fas fa-car-side',
+            'Jardinería': 'fas fa-leaf',
+            'default': 'fas fa-box'
+        };
+
+        // Toggle loading state
+        function toggleLoading(show) {
+            document.getElementById('loadingContainer').style.display = show ? 'block' : 'none';
+            document.getElementById('resultadosContainer').style.display = show ? 'none' : 'block';
+        }
+
+        // Show alert
+        function showAlert(message, type) {
+            const alertContainer = document.createElement('div');
+            alertContainer.className = `bg-${type}-100 border border-${type}-400 text-${type}-700 px-4 py-3 rounded-lg mb-4 flex justify-between items-center`;
+            alertContainer.innerHTML = `
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" class="text-${type}-700 hover:text-${type}-900">
+                    <i class="fas fa-times"></i>
+                </button>`;
+            document.querySelector('.lg\\:col-span-2').prepend(alertContainer);
+            setTimeout(() => alertContainer.remove(), 5000);
+        }
+
+        // Clear alerts
+        function clearAlerts() {
+            document.querySelectorAll('.bg-blue-100, .bg-red-100, .bg-yellow-100, .bg-green-100').forEach(alert => alert.remove());
+        }
+
+        // Fetch categories
+        async function obtenerCategorias() {
+            const year = document.getElementById('añoConsulta').value;
+            if (!year || year < 1900 || year > 3000) {
+                showAlert('Por favor, ingrese un año válido entre 1900 y 3000', 'yellow');
+                return;
+            }
+            toggleLoading(true);
+            try {
+                const response = await fetch(`/api/ventas/categorias-con-ventas/${year}`);
+                const data = await response.json();
+                if (data.success) {
+                    fillCategorySelect(data.data);
+                    fillCategoryTags(data.data);
+                    document.getElementById('categoriasContainer').classList.remove('hidden');
+                    showAlert(`Se encontraron ${data.total} categorías con ventas en ${year}`, 'green');
+                } else {
+                    showAlert(data.mensaje, 'yellow');
+                    document.getElementById('categoriasContainer').classList.add('hidden');
+                }
+            } catch (error) {
+                showAlert('Error al consultar categorías', 'red');
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        // Fill category select
+        function fillCategorySelect(categories) {
+            const select = document.getElementById('categoriaSelect');
+            select.innerHTML = '<option value="">Seleccione una categoría...</option>';
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                select.appendChild(option);
+            });
+        }
+
+        // Fill category tags
+        function fillCategoryTags(categories) {
+            const tagsContainer = document.getElementById('categoriasTags');
+            tagsContainer.innerHTML = '';
+            categories.forEach(category => {
+                const categoryIcon = categoryIcons[category] || categoryIcons['default'];
+                const tag = document.createElement('span');
+                tag.className = 'inline-block bg-gradient-to-r from-blue-500 to-green-500 text-white px-3 py-1 rounded-full text-sm font-medium hover:scale-105 transition cursor-pointer';
+                tag.innerHTML = `<i class="${categoryIcon} mr-1"></i>${category}`;
+                tag.onclick = () => selectCategory(category);
+                tagsContainer.appendChild(tag);
+            });
+        }
+
+        // Select category
+        function selectCategory(category) {
+            document.getElementById('categoriaSelect').value = category;
+            showAlert(`Categoría "${category}" seleccionada`, 'blue');
+        }
+
+        // Fetch sales
+        async function consultarVentas() {
+            const year = document.getElementById('añoConsulta').value;
+            const category = document.getElementById('categoriaSelect').value;
+            if (!year || !category) {
+                showAlert('Seleccione un año y una categoría', 'yellow');
+                return;
+            }
+            toggleLoading(true);
+            try {
+                const response = await fetch(`/api/ventas/por-categoria?nombreCategoria=${encodeURIComponent(category)}&año=${year}`);
+                const data = await response.json();
+                if (data.success) {
+                    showSalesResults(data.data, category, year);
+                } else {
+                    showAlert(data.mensaje, 'yellow');
+                    document.getElementById('resultadosContainer').classList.add('hidden');
+                }
+            } catch (error) {
+                showAlert('Error al consultar ventas', 'red');
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        // Show sales results
+        function showSalesResults(sales, category, year) {
+            const title = document.getElementById('resultadosTitulo');
+            const content = document.getElementById('resultadosContent');
+            const categoryIcon = categoryIcons[category] || categoryIcons['default'];
+            title.innerHTML = `<i class="${categoryIcon} mr-2"></i>Ventas de "${category}" en ${year} (${sales.length} productos)`;
+
+            // Usar grid solo para las tarjetas de productos individuales
+            content.innerHTML = '';
+            content.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6';
+
+            if (!sales.length) {
+                content.innerHTML = '<p class="text-gray-500 text-center col-span-full">No se encontraron productos.</p>';
+                document.getElementById('resultadosContainer').classList.remove('hidden');
+                return;
+            }
+            sales.forEach(sale => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition';
+                card.innerHTML = `
+                    <div class="flex items-center justify-center w-full h-48 bg-gradient-to-br from-blue-500 to-green-500 rounded-t-lg mb-4">
+                        <i class="${categoryIcon} text-white text-6xl"></i>
+                    </div>
+                    <h5 class="text-lg font-semibold">${sale.nombreProducto}</h5>
+                    <p class="text-sm text-gray-600">Código Venta: <span class="font-medium">${sale.codigoVenta}</span></p>
+                    <p class="text-sm text-gray-600">Fecha: <span class="font-medium">${new Date(sale.fecha).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span></p>
+                    <p class="text-sm text-gray-600">Categoría: <span class="font-medium">${sale.nombreCategoria}</span></p>
+                `;
+                content.appendChild(card);
+            });
+            document.getElementById('resultadosContainer').classList.remove('hidden');
+        }
+
+        // Fetch annual summary
+        async function obtenerResumenAnual() {
+            const year = document.getElementById('añoConsulta').value;
+            if (!year || year < 1900 || year > 3000) {
+                showAlert('Por favor, ingrese un año válido entre 1900 y 3000', 'yellow');
+                return;
+            }
+            toggleLoading(true);
+            try {
+                const response = await fetch(`/api/ventas/resumen-por-categoria/${year}`);
+                const data = await response.json();
+                if (data.success) {
+                    showAnnualSummary(data.data, year, data.resumen);
+                } else {
+                    showAlert(data.mensaje, 'yellow');
+                    document.getElementById('resultadosContainer').classList.add('hidden');
+                }
+            } catch (error) {
+                showAlert('Error al obtener el resumen anual', 'red');
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        // Show annual summary - FUNCIÓN CORREGIDA
+        function showAnnualSummary(summary, year, stats) {
+            const title = document.getElementById('resultadosTitulo');
+            const content = document.getElementById('resultadosContent');
+
+            title.innerHTML = `<i class="fas fa-chart-pie mr-2"></i>Resumen de Ventas ${year}`;
+
+            // Remover la clase grid del contenedor para el resumen
+            content.className = '';
+            content.innerHTML = '';
+
+            // Crear las estadísticas generales
+            const statsSection = document.createElement('div');
+            statsSection.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6';
+            statsSection.innerHTML = `
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg">
+                    <div class="flex items-center">
+                        <i class="fas fa-tags text-3xl opacity-80 mr-4"></i>
+                        <div>
+                            <p class="text-sm opacity-90">Total Categorías</p>
+                            <p class="text-3xl font-bold">${stats.totalCategorias}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-xl shadow-lg">
+                    <div class="flex items-center">
+                        <i class="fas fa-shopping-cart text-3xl opacity-80 mr-4"></i>
+                        <div>
+                            <p class="text-sm opacity-90">Total Ventas</p>
+                            <p class="text-3xl font-bold">${stats.totalVentasGlobal}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-xl shadow-lg">
+                    <div class="flex items-center">
+                        <i class="fas fa-chart-bar text-3xl opacity-80 mr-4"></i>
+                        <div>
+                            <p class="text-sm opacity-90">Promedio por Categoría</p>
+                            <p class="text-3xl font-bold">${Math.round(stats.totalVentasGlobal / stats.totalCategorias)}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-xl shadow-lg">
+                    <div class="flex items-center">
+                        <i class="fas fa-calendar text-3xl opacity-80 mr-4"></i>
+                        <div>
+                            <p class="text-sm opacity-90">Año Consultado</p>
+                            <p class="text-3xl font-bold">${year}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            content.appendChild(statsSection);
+
+            // Crear la tabla detallada si hay datos
+            if (summary && summary.length > 0) {
+                const tableSection = document.createElement('div');
+                tableSection.className = 'bg-white rounded-xl shadow-lg overflow-hidden';
+                tableSection.innerHTML = `
+                    <div class="bg-gray-800 text-white p-4">
+                        <h5 class="text-lg font-semibold flex items-center">
+                            <i class="fas fa-table mr-2"></i>Detalle por Categoría
+                        </h5>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="p-4 text-left font-semibold text-gray-700">
+                                        <i class="fas fa-tag mr-1"></i>Categoría
+                                    </th>
+                                    <th class="p-4 text-center font-semibold text-gray-700">
+                                        <i class="fas fa-shopping-cart mr-1"></i>Ventas
+                                    </th>
+                                    <th class="p-4 text-center font-semibold text-gray-700">
+                                        <i class="fas fa-box mr-1"></i>Productos
+                                    </th>
+                                    <th class="p-4 text-center font-semibold text-gray-700">
+                                        <i class="fas fa-calendar mr-1"></i>Primera Venta
+                                    </th>
+                                    <th class="p-4 text-center font-semibold text-gray-700">
+                                        <i class="fas fa-calendar-check mr-1"></i>Última Venta
+                                    </th>
+                                    <th class="p-4 text-center font-semibold text-gray-700">
+                                        <i class="fas fa-percentage mr-1"></i>% del Total
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${summary.map((item, index) => {
+                                    const percentage = ((item.totalVentas / stats.totalVentasGlobal) * 100).toFixed(1);
+                                    const rowClass = index % 2 === 0 ? 'bg-gray-50' : 'bg-white';
+                                    return `
+                                        <tr class="${rowClass} hover:bg-blue-50 transition-colors">
+                                            <td class="p-4">
+                                                <div class="flex items-center">
+                                                    <i class="${categoryIcons[item.nombreCategoria] || categoryIcons['default']} text-blue-600 mr-2"></i>
+                                                    <span class="font-medium">${item.nombreCategoria}</span>
+                                                </div>
+                                            </td>
+                                            <td class="p-4 text-center">
+                                                <span class="inline-block bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                                    ${item.totalVentas}
+                                                </span>
+                                            </td>
+                                            <td class="p-4 text-center">
+                                                <span class="inline-block bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                                                    ${item.cantidadProductos}
+                                                </span>
+                                            </td>
+                                            <td class="p-4 text-center text-sm text-gray-600">
+                                                ${new Date(item.primeraVenta).toLocaleDateString('es-ES', {
+                                                    day: '2-digit',
+                                                    month: '2-digit',
+                                                    year: 'numeric'
+                                                })}
+                                            </td>
+                                            <td class="p-4 text-center text-sm text-gray-600">
+                                                ${new Date(item.ultimaVenta).toLocaleDateString('es-ES', {
+                                                    day: '2-digit',
+                                                    month: '2-digit',
+                                                    year: 'numeric'
+                                                })}
+                                            </td>
+                                            <td class="p-4 text-center">
+                                                <div class="flex items-center justify-center">
+                                                    <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                                                        <div class="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full"
+                                                             style="width: ${percentage}%"></div>
+                                                    </div>
+                                                    <span class="text-sm font-semibold text-gray-700">${percentage}%</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+
+                content.appendChild(tableSection);
+            }
+
+            document.getElementById('resultadosContainer').classList.remove('hidden');
+        }
+
+        // Clear results
+        function limpiarResultados() {
+            document.getElementById('resultadosContainer').classList.add('hidden');
+            document.getElementById('categoriasContainer').classList.add('hidden');
+            document.getElementById('categoriaSelect').innerHTML = '<option value="">Seleccione una categoría...</option>';
+            document.getElementById('añoConsulta').value = 2019;
+            document.getElementById('categoriasTags').innerHTML = '';
+            clearAlerts();
+            showAlert('Consulta limpiada correctamente', 'blue');
+        }
+
+        // Toggle navbar menu
+        function toggleMenu() {
+            document.getElementById('navbarMenu').classList.toggle('hidden');
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('añoConsulta').value = 2019;
+            showAlert('Bienvenido al Sistema de Control de Ventas', 'blue');
+        });
+    </script>
+</body>
+</html>
