@@ -439,6 +439,8 @@ El sistema genera automaticamente:
 - **Ventas de muestra** distribuidas en diferentes años (2018-2024)
 - **Fechas realistas** para simular operacion real
 
+## Ademas se incluye un script de consulta que devuelve la categoria de la ultima venta
+
 ## 🤝 Contribucion
 
 Este proyecto fue desarrollado como una demostracion de habilidades tecnicas, siguiendo las mejores practicas de desarrollo .NET y diseno de bases de datos.
