@@ -1,6 +1,6 @@
 # control de ventas 1.0
 <img width="1655" height="865" alt="Captura de pantalla 2025-09-26 a la(s) 22 57 06" src="https://github.com/user-attachments/assets/75a2c350-7e39-42e6-9c7d-5ce21d33eb82" />
-<img width="1680" height="1050" alt="Captura de pantalla 2025-09-21 a la(s) 11 39 41" src="https://github.com/user-attachments/assets/32a067e8-57d9-41a1-8429-f25a1de9595b" />
+<img width="1639" height="854" alt="Captura de pantalla 2025-09-26 a la(s) 22 57 57" src="https://github.com/user-attachments/assets/a3438ab6-a5b9-408c-a85c-f43409a232af" />
 
 Okay, aquí tienes la documentación actualizada en HTML, quitando la sección "Código Fuente Principal (Program.cs)" y añadiendo la sugerencia de descarga/clonado en la sección de instalación.
 
