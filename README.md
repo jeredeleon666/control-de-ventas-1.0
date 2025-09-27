@@ -281,7 +281,6 @@ netstat -an | findstr :5281
 Una vez iniciada la aplicacion, estara disponible en:
 - **Pagina principal**: `http://localhost:5281/controlventas/`
 - **API de ventas**: `http://localhost:5281/api/ventas/`
-- **Documentacion Swagger**: `http://localhost:5281/swagger/`
 
 ### Configuracion de Connection String
 
